@@ -1520,6 +1520,7 @@ sub get_cxn_params {
                      grep { defined $info->{$_} }
                      qw(F h P S A))
          . ';mysql_read_default_group=client'
+         . ';mysql_ssl=1'
          . ($info->{L} ? ';mysql_local_infile=1' : '');
    }
    PTDEBUG && _d($dsn);
