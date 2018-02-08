@@ -4838,6 +4838,9 @@ sub make_row_checksum {
          elsif ( $args{trim} && $type =~ m/varchar/ ) {
             $result = "TRIM($result)";
          }
+         elsif ( $args{base64} && $type =~ m/varchar/ ) {
+            $result = "TO_BASE64($result)";
+         }
          $result;
       }
       grep {
@@ -4856,6 +4859,10 @@ sub make_row_checksum {
                      }
                      elsif ( $col =~ m/TRIM/ ) {
                         my ($real_col) = m/TRIM\(([^\)]+)\)/;
+                        $col .= " AS $real_col";
+                     }
+                     elsif ( $col =~ m/BASE64/ ) {
+                        my ($real_col) = m/TO_BASE64\(([^\)]+)\)/;
                         $col .= " AS $real_col";
                      }
                      $col;
@@ -10588,6 +10595,7 @@ sub sync_a_table {
          dry_run           => $o->get('dry-run'),
          timeout_ok        => $o->get('timeout-ok'),
          trim              => $o->get('trim'),
+         base64            => $o->get('base64'),
          wait              => $o->get('wait'),
          function          => $o->get('function'),
          trace             => !$ENV{PT_TEST_NO_TRACE},
@@ -12496,6 +12504,11 @@ This is useful when you don't care about the trailing space differences between
 MySQL versions which vary in their handling of trailing spaces. MySQL 5.0 and 
 later all retain trailing spaces in C<VARCHAR>, while previous versions would 
 remove them.
+
+=item --base64
+
+C<TO_BASE64()> C<VARCHAR> columns in C<BIT_XOR> and C<ACCUM> modes. Helps 
+to fix illegal mix of collations error.
 
 =item --[no]unique-checks
 

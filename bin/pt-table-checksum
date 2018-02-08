@@ -5754,6 +5754,10 @@ sub make_row_checksum {
                         my ($real_col) = m/TRIM\(([^\)]+)\)/;
                         $col .= " AS $real_col";
                      }
+                     elsif ( $col =~ m/TO_BASE64/ ) {
+                        my ($real_col) = m/TO_BASE64\(([^\)]+)\)/;
+                        $col .= " AS $real_col";
+                     }
                      $col;
                   } @{$cols->{select}})
              . ', ';
@@ -5836,6 +5840,7 @@ sub get_checksum_columns {
 
    my $trim            = $o->get('trim');
    my $float_precision = $o->get('float-precision');
+   my $base64          = $o->get('base64');
 
    my $tbl_struct = $tbl->{tbl_struct};
    my $ignore_col = $o->get('ignore-columns') || {};
@@ -5854,6 +5859,9 @@ sub get_checksum_columns {
          }
          elsif ( $trim && $type =~ m/varchar/ ) {
             $result = "TRIM($result)";
+         }
+         elsif ( $base64 && $type =~ m/varchar/ ) {
+            $result = "TO_BASE64($result)";
          }
          $result;
       }
@@ -12523,6 +12531,10 @@ This is useful when you don't care about the trailing space differences between
 MySQL versions that vary in their handling of trailing spaces. MySQL 5.0 and 
 later all retain trailing spaces in VARCHAR, while previous versions would 
 remove them.  These differences will cause false checksum differences.
+
+=item --base64
+
+Add TO_BASE64() to VARCHAR columns (helps to fix illegal mix of collations error).
 
 =item --user
 
