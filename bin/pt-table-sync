@@ -4861,9 +4861,9 @@ sub make_row_checksum {
                         my ($real_col) = m/TRIM\(([^\)]+)\)/;
                         $col .= " AS $real_col";
                      }
-                     elsif ( $col =~ m/BASE64/ ) {
+                     elsif ( $col =~ m/TO_BASE64\(/ ) {
                         my ($real_col) = m/TO_BASE64\(([^\)]+)\)/;
-                        $col .= " AS $real_col";
+                        $col = $real_col;
                      }
                      $col;
                   } @cols)
